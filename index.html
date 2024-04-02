@@ -50,14 +50,15 @@
       </div>
       <div>
         <h2>Product Title</h2>
-        <form
+        <!-- <form
           action="https://www.paypal.com/cgi-bin/webscr"
           method="post"
           target="_top"
           class="donation-form"
           id="donation-form"
-        >
-          <input type="hidden" name="cmd" value="_donations" />
+        > -->
+        <form action="sendemail" method="post" target="_top" class="donation-form" id="donation-form">
+        <input type="hidden" name="cmd" value="_donations" />
           <input type="hidden" name="business" value="your_email@example.com" />
           <input type="hidden" name="currency_code" value="USD" />
           <div class="form-group">
@@ -91,6 +92,7 @@
             height="1"
             src="https://www.paypal.com/en_US/i/scr/pixel.gif"
           />
+          <input type="submit"> submit</div>
         </form>
       </div>
     </div>
@@ -140,38 +142,24 @@
         })
         .render("#paypal-button-container");
     </script>
+    <script>
+      document.getElementById('donation-form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent the form from submitting immediately
+        console.log(1)
+        // Your PHPMailer code here
+        // After sending the email, change the form's action to PayPal and submit it
+        this.action = 'sendemail.php';
+        this.submit();
+      });
+    </script>
     <?php
     if (isset($_POST["payment_completed"])) {
       
-      <!-- $to = "arobamushtaq90@gmail.com";
+      $to = "arobamushtaq90@gmail.com";
       $subject = "Payment Received";
       $message = "A payment has been received. Check your PayPal account for details.";
       $headers = "From: your_email@example.com";
-      mail($to, $subject, $message, $headers); -->require 'vendor/autoload.php'; // Adjust the path if necessary
-
-      $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-
-      try {
-        // Use PHP's mail() function
-        $mail->isMail();
-
-        //Recipients
-        $mail->setFrom('your_email@example.com', 'Mailer');
-        $mail->addAddress('arobamushtaq90@gmail.com', 'Recipient Name'); // Add a recipient
-
-        //Content
-        $mail->isHTML(true); // Set email format to HTML
-        $mail->Subject = 'Payment Received';
-        $mail->Body    = 'A payment has been received. Check your PayPal account for details.';
-        $mail->AltBody = 'A payment has been received. Check your PayPal account for details.';
-
-        $mail->send();
-        echo 'Message has been sent';
-      } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-      }
-    
-    }
+      mail($to, $subject, $message, $headers);
     ?>
   </body>
 </html>
