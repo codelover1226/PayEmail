@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Donation</title>
+    <script src="https://www.paypal.com/sdk/js?client-id=Aa2PzKirWVamcPtp2_V9zR9bR6UVJua1SbQylj_S8TdcyuAN5DdF2xyxqe54sOq56fBohpMfMD_5ZpQs"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .product-info {
+        margin-right: 20px;
+      }
+
+      .product-info img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .donation-form {
+        width: 300px;
+      }
+
+      .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="product-info">
+        <img
+          src="https://apgoldcoin.com/img/core-img/appo.png"
+          alt="Product Image"
+          class="img-fluid"
+          width="500px"
+          height="350px"
+        />
+      </div>
+      <div>
+        <h2>Product Title</h2>
+        <form
+          action="https://www.paypal.com/cgi-bin/webscr"
+          method="post"
+          target="_top"
+          class="donation-form"
+          id="donation-form"
+        >
+          <input type="hidden" name="cmd" value="_donations" />
+          <input type="hidden" name="business" value="your_email@example.com" />
+          <input type="hidden" name="currency_code" value="USD" />
+          <div class="form-group">
+            <label for="name">WALLET:</label>
+            <input
+              type="text"
+              name="wallet"
+              id="wallet"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="amount">AMOUNT:</label>
+            <input
+              type="number"
+              name="amount"
+              id="amount"
+              class="form-control"
+              min="1"
+              step="0.01"
+              required
+            />
+            <div class="error-message" id="amount-error"></div>
+          </div>
+          <div id="paypal-button-container"></div>
+          <img
+            alt=""
+            width="1"
+            height="1"
+            src="https://www.paypal.com/en_US/i/scr/pixel.gif"
+          />
+        </form>
+      </div>
+    </div>
+    <script>
+      paypal
+        .Buttons({
+          createOrder: function (data, actions) {
+            // Custom validation
+            if (document.getElementById("donation-form").checkValidity()) {
+              return actions.order.create({
+                purchase_units: [
+                  {
+                    amount: {
+                      value: document.getElementById("amount").value || "1",
+                    },
+                  },
+                ],
+              });
+            } else {
+              // Show error message if form is not valid
+              document.getElementById("amount-error").innerText =
+                "Please enter wallet , amount.";
+              return false;
+            }
+          },
+          onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+              alert(
+                "Transaction completed by " + details.payer.name.given_name
+              );
+              // Redirect or perform other actions after successful transaction
+              // Send email
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", window.location.href, true);
+              xhr.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+              );
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                  console.log("Email sent successfully");
+                }
+              };
+              xhr.send("payment_completed=true");
+            });
+          },
+        })
+        .render("#paypal-button-container");
+    </script>
+    <?php
+    if (isset($_POST["payment_completed"])) {
+      
+      <!-- $to = "arobamushtaq90@gmail.com";
+      $subject = "Payment Received";
+      $message = "A payment has been received. Check your PayPal account for details.";
+      $headers = "From: your_email@example.com";
+      mail($to, $subject, $message, $headers); -->require 'vendor/autoload.php'; // Adjust the path if necessary
+
+      $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+      try {
+        // Use PHP's mail() function
+        $mail->isMail();
+
+        //Recipients
+        $mail->setFrom('your_email@example.com', 'Mailer');
+        $mail->addAddress('arobamushtaq90@gmail.com', 'Recipient Name'); // Add a recipient
+
+        //Content
+        $mail->isHTML(true); // Set email format to HTML
+        $mail->Subject = 'Payment Received';
+        $mail->Body    = 'A payment has been received. Check your PayPal account for details.';
+        $mail->AltBody = 'A payment has been received. Check your PayPal account for details.';
+
+        $mail->send();
+        echo 'Message has been sent';
+      } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+      }
+    
+    }
+    ?>
+  </body>
+</html>
